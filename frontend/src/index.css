@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: #0F172A;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: 'Poppins', sans-serif;
+}
