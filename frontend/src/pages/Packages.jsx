@@ -4,64 +4,24 @@ import PackageFilter from "../components/package/PackageFilter";
 import PackageCard from "../components/package/PackageCard";
 import { getPackages } from "../api/api.js";
 
-const fallback = [
-  {
-    _id: "1",
-    title: "Maldives Luxury Escape",
-    days: 5,
-    nights: 4,
-    price: 79999,
-    image:
-      "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?q=80&w=600&auto=format&fit=crop",
-    includes: { flights: true, hotel: true, meals: true, transfers: true },
-  },
-  {
-    _id: "2",
-    title: "Greek Island Adventure",
-    days: 7,
-    nights: 6,
-    price: 124999,
-    image:
-      "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?q=80&w=600&auto=format&fit=crop",
-    includes: { flights: true, hotel: true, meals: true, transfers: true },
-  },
-  {
-    _id: "3",
-    title: "Switzerland Explorer",
-    days: 6,
-    nights: 5,
-    price: 109999,
-    image:
-      "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?q=80&w=600&auto=format&fit=crop",
-    includes: { flights: true, hotel: true, meals: true, transfers: true },
-  },
-  {
-    _id: "4",
-    title: "Dubai Luxury Getaway",
-    days: 4,
-    nights: 3,
-    price: 54999,
-    image:
-      "https://images.unsplash.com/photo-1518684079-3c830dcef090?q=80&w=600&auto=format&fit=crop",
-    includes: { flights: true, hotel: true, meals: false, transfers: true },
-  },
-];
-
 export default function Packages() {
-  const [packages, setPackages] = useState(fallback);
+  const [packages, setPackages] = useState([]);
   const [sort, setSort] = useState("default");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
     getPackages()
       .then((res) => {
-        if (res.data && res.data.length) setPackages(res.data);
+        setPackages(res.data || []);
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error("Failed to load packages:", err);
+        setPackages([]);
+      });
   }, []);
 
   const filtered = packages.filter((p) =>
-    p.title.toLowerCase().includes(search.toLowerCase()),
+    p.title.toLowerCase().includes(search.toLowerCase())
   );
 
   const sorted = [...filtered].sort((a, b) => {
@@ -80,6 +40,7 @@ export default function Packages() {
         sort={sort}
         setSort={setSort}
       />
+
       <div className="mt-14 mb-8">
         <h2 className="text-4xl font-bold">Trending Packages</h2>
 
@@ -90,7 +51,7 @@ export default function Packages() {
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
         {sorted.map((p) => (
-          <PackageCard key={p._id} p={p} />
+          <PackageCard key={p._id} pkg={p} />
         ))}
       </div>
 

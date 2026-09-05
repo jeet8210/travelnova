@@ -3,78 +3,24 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Star, MapPin, Search } from "lucide-react";
 import { getDestinations } from "../api/api.js";
 
-const fallback = [
-  {
-    _id: "1",
-    name: "Maldives",
-    tagline: "Paradise on Earth",
-    country: "Maldives",
-    rating: 4.9,
-    image:
-      "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    _id: "2",
-    name: "Switzerland",
-    tagline: "Alpine Wonderland",
-    country: "Switzerland",
-    rating: 4.9,
-    image:
-      "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    _id: "3",
-    name: "Bali",
-    tagline: "Island of Gods",
-    country: "Indonesia",
-    rating: 4.7,
-    image:
-      "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    _id: "4",
-    name: "Dubai",
-    tagline: "City of Dreams",
-    country: "UAE",
-    rating: 4.8,
-    image:
-      "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    _id: "5",
-    name: "Santorini",
-    tagline: "Whitewashed Cliffs",
-    country: "Greece",
-    rating: 4.8,
-    image:
-      "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    _id: "6",
-    name: "Swiss Alps",
-    tagline: "Mountain Escapes",
-    country: "Switzerland",
-    rating: 4.9,
-    image:
-      "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?q=80&w=600&auto=format&fit=crop",
-  },
-];
-
 export default function Destinations() {
   const [searchParams] = useSearchParams();
-  const [destinations, setDestinations] = useState(fallback);
+  const [destinations, setDestinations] = useState([]);
   const [query, setQuery] = useState(searchParams.get("q") || "");
 
   useEffect(() => {
     getDestinations()
       .then((res) => {
-        if (res.data && res.data.length) setDestinations(res.data);
+        setDestinations(res.data || []);
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error("Failed to load destinations:", err);
+        setDestinations([]);
+      });
   }, []);
 
   const filtered = destinations.filter((d) =>
-    d.name.toLowerCase().includes(query.toLowerCase()),
+    d.name.toLowerCase().includes(query.toLowerCase())
   );
 
   return (
@@ -95,13 +41,12 @@ export default function Destinations() {
           </h1>
 
           <p className="text-lg text-gray-200 max-w-2xl">
-            Discover amazing places, luxury resorts and unforgettable adventures
-            across the globe.
+            Discover amazing places, luxury resorts and unforgettable
+            adventures across the globe.
           </p>
         </div>
       </div>
 
-      {/* Search Box */}
       <div className="max-w-xl mx-auto mb-12">
         <div className="relative">
           <Search
@@ -119,8 +64,6 @@ export default function Destinations() {
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map((d) => (
           <Link
@@ -133,22 +76,33 @@ export default function Destinations() {
               alt={d.name}
               className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
             />
+
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
             <span className="absolute top-3 right-3 bg-white/90 text-xs font-semibold rounded-full px-2 py-1 flex items-center gap-1">
-              <Star size={12} className="text-yellow-500 fill-yellow-500" />{" "}
+              <Star
+                size={12}
+                className="text-yellow-500 fill-yellow-500"
+              />
               {d.rating}
             </span>
+
             <div className="absolute bottom-3 left-3 text-white">
               <div className="font-semibold flex items-center gap-1">
-                <MapPin size={14} /> {d.name}
+                <MapPin size={14} />
+                {d.name}
               </div>
-              <div className="text-xs text-slate-200">{d.tagline}</div>
+
+              <div className="text-xs text-slate-200">
+                {d.tagline}
+              </div>
             </div>
           </Link>
         ))}
+
         {filtered.length === 0 && (
           <p className="text-slate-400 text-sm col-span-full text-center py-10">
-            No destinations match "{query}".
+            No destinations found.
           </p>
         )}
       </div>
